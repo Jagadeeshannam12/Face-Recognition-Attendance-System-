@@ -71,7 +71,7 @@ attendance_project/
 
 - Django
 - OpenCV
-- MTCNN
+- Deepface
 - YOLOv8
 - Pandas
 
