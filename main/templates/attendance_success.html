@@ -1,0 +1,20 @@
+{% extends 'base.html' %} {% block title %}Attendance Success | Face
+Attendance{% endblock %} {% block content %}
+<div
+  class="container d-flex flex-column justify-content-center align-items-center"
+  style="min-height: 70vh"
+>
+  <div class="alert alert-success text-center p-5 shadow">
+    <h1 class="display-4">✅ Attendance Marked Successfully!</h1>
+    <p class="lead mt-2">Thank you! You may now proceed.</p>
+  </div>
+
+  <a
+    href="{% url 'login' %}"
+    class="btn btn-cta btn-lg mt-4"
+    style="min-width: 200px"
+  >
+    🔐 Login to View
+  </a>
+</div>
+{% endblock %}

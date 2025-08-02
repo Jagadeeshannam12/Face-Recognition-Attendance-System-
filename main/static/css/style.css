@@ -1,0 +1,137 @@
+/* Root Theme Variables */
+:root {
+  --main-color-light: #2c3e50;
+  --second-color-light: #3498db;
+  --text-color-light: #2c3e50;
+  --bg-light: #ecf0f1;
+
+  --main-color-dark: #2c3e50;
+  --second-color-dark: #3498db;
+  --text-color-dark: #ffffff;
+  --bg-dark: #1a1a1a;
+}
+
+/* Theme Overrides */
+[data-theme="light"] {
+  --main-color: var(--main-color-light);
+  --second-color: var(--second-color-light);
+  --text-color: var(--text-color-light);
+  --bg-color: var(--bg-light);
+}
+
+[data-theme="dark"] {
+  --main-color: var(--main-color-dark);
+  --second-color: var(--second-color-dark);
+  --text-color: var(--text-color-dark);
+  --bg-color: var(--bg-dark);
+}
+
+/* Base Styles */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--main-color);
+}
+
+/* Cards */
+.card {
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: white;
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+  background-color: #1e1e1e;
+  color: var(--text-color-dark);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Buttons */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.btn-cta {
+  background-color: var(--second-color);
+  color: white;
+  border: none;
+}
+
+.btn-cta:hover {
+  background-color: var(--main-color);
+  color: #fff;
+}
+
+/* Forms */
+form label {
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  border-radius: 8px !important;
+}
+
+/* Tables */
+.table th,
+.table td {
+  vertical-align: middle !important;
+  text-align: center;
+}
+
+/* Video & Canvas */
+video,
+canvas {
+  border: 2px dashed var(--main-color);
+  border-radius: 15px;
+  margin-top: 10px;
+  max-width: 100%;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+/* Login page background */
+.login-page {
+  background: url("/static/main/images/login-face-overlay.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Overlay styles for login form */
+.login-page .card {
+  background-color: rgba(0, 0, 0, 0.75); /* semi-transparent dark card */
+  color: white;
+  border-radius: 15px;
+}
+
+.login-page .form-label,
+.login-page a,
+.login-page .alert {
+  color: white;
+}
+
+.login-page .form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ccc;
+  color: white;
+}

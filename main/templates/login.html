@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Login | Face Attendance{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh">
+  <div class="card shadow p-4" style="max-width: 400px; width: 100%">
+    <h2 class="text-center mb-4 text-main">🔐 Login</h2>
+
+    {% if msg %}
+      <div class="alert alert-danger">{{ msg }}</div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+        {{ form.username|add_class:"form-control" }}
+      </div>
+      <div class="mb-3">
+        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+        {{ form.password|add_class:"form-control" }}
+      </div>
+      <button type="submit" class="btn btn-cta w-100">Login</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="{% url 'register' %}">Create an account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

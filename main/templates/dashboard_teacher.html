@@ -1,0 +1,92 @@
+{% extends 'base.html' %} 
+{% block title %}Teacher Dashboard | Face Attendance{%endblock %} 
+{% block content %}
+<div class="container py-5">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-main">👩‍🏫 Teacher Dashboard</h2>
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+  </div>
+
+  <!-- Attendance Table -->
+  <div class="card shadow p-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4>📑 Student Attendance Records</h4>
+      <a href="{% url 'export_csv' %}" class="btn btn-primary">
+        📁 Export Attendance CSV
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Reg No.</th>
+            <th>Section</th>
+            <th>Total</th>
+            <th>Present</th>
+            <th>Percent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in attendance_data %}
+          <tr>
+            <td>{{ row.student.user.username }}</td>
+            <td>{{ row.student.registration_number }}</td>
+            <td>{{ row.student.section }}</td>
+            <td>{{ row.total }}</td>
+            <td>{{ row.present }}</td>
+            <td>{{ row.percent|floatformat:2 }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Face Upload Form -->
+  <div class="card shadow p-4">
+    <h4>📷 Mark Attendance via Face Image</h4>
+    <form id="attendanceForm" enctype="multipart/form-data" class="mt-3">
+      <input
+        type="file"
+        name="face_image"
+        id="faceImage"
+        accept="image/*"
+        required
+        class="form-control mb-2"
+      />
+      <button type="submit" class="btn btn-success">✅ Mark Attendance</button>
+    </form>
+    <div id="status" class="mt-3"></div>
+  </div>
+</div>
+
+<!-- AJAX Script -->
+<script>
+  document
+    .getElementById("attendanceForm")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData();
+      const file = document.getElementById("faceImage").files[0];
+      formData.append("face_image", file);
+
+      fetch("{% url 'mark_attendance' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const status = document.getElementById("status");
+          status.innerHTML = `<div class="alert alert-${
+            data.status === "success" ? "success" : "danger"
+          }">${data.message}</div>`;
+        });
+    });
+</script>
+{% endblock %}

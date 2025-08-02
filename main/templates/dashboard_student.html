@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<!-- your HTML content starts -->
+
+<div class="container py-5">
+  <div class="text-center mb-4">
+    <h2>👋 Welcome, <span class="text-main">{{ user.username }}</span></h2>
+    <p class="lead">Here’s a quick look at your attendance performance.</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow p-4 mb-5">
+        <h4 class="text-center mb-3">📊 Attendance Overview</h4>
+        <canvas id="attendanceChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow p-4">
+    <h5 class="mb-3">📅 Attendance History</h5>
+    {% if attendance_records %}
+    <ul class="list-group">
+      {% for record in attendance_records %}
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <span>{{ record.date }}</span>
+        <span
+          class="badge rounded-pill {% if record.is_present %}bg-success{% else %}bg-danger{% endif %}"
+        >
+          {% if record.is_present %}Present{% else %}Absent{% endif %}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No attendance records found.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('attendanceChart');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Present', 'Absent'],
+      datasets: [{
+        label: 'Attendance',
+        data: [{{ present_days }}, {{ absent_days }}],
+        backgroundColor: ['#28a745', '#dc3545'],
+        borderColor: ['#28a745', '#dc3545'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

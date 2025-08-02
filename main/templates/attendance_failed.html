@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block title %}Attendance Failed | Face Attendance{%
+endblock %} {% block content %}
+<div
+  class="container d-flex flex-column justify-content-center align-items-center"
+  style="min-height: 70vh"
+>
+  <div class="alert alert-danger text-center p-5 shadow">
+    <h1 class="display-4">❌ Face Not Recognized</h1>
+    <p class="lead mt-3">
+      Please try again or contact your administrator for support.
+    </p>
+  </div>
+
+  <a href="{% url 'mark_face_attendance' %}" class="btn btn-cta btn-lg mt-4">
+    🔄 Try Again
+  </a>
+</div>
+{% endblock %}

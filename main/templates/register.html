@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block title %}Register Student | Face Attendance{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+  <div class="card shadow p-4" style="max-width: 650px; width: 100%">
+    <h2 class="mb-4 text-center text-main">📝 Register Student</h2>
+
+    {% if msg %}
+    <div class="alert alert-danger text-center">{{ msg }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Username -->
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        {{ form.username|add_class:"form-control" }}
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        {{ form.email|add_class:"form-control" }}
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        {{ form.password|add_class:"form-control" }}
+      </div>
+
+      <!-- Registration Number -->
+      <div class="mb-3">
+        <label class="form-label">Registration Number</label>
+        {{ form.registration_number|add_class:"form-control" }}
+      </div>
+
+      <!-- Section -->
+      <div class="mb-3">
+        <label class="form-label">Section</label>
+        {{ form.section|add_class:"form-control" }}
+      </div>
+
+      <!-- Face Image Upload/Capture -->
+      <div class="mb-3">
+        <label class="form-label">📷 Capture Face (or Upload)</label>
+        <div class="d-flex flex-column align-items-center">
+          <video id="video" width="320" height="240" autoplay class="border rounded mb-2"></video>
+          <button type="button" class="btn btn-secondary mb-2" onclick="takeSnapshot()">📸 Capture</button>
+          <canvas id="canvas" width="320" height="240" class="border rounded mb-2" style="display: none"></canvas>
+        </div>
+
+        <!-- Face Image Field -->
+        {{ form.face_image|add_class:"form-control" }}
+      </div>
+
+      <button type="submit" class="btn btn-cta w-100">✅ Register</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const context = canvas.getContext("2d");
+
+  // Start webcam
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then((stream) => {
+      video.srcObject = stream;
+    })
+    .catch((err) => {
+      console.error("Webcam not accessible:", err);
+      video.outerHTML = "<p class='text-danger'>⚠️ Webcam not available. Please upload image manually.</p>";
+    });
+
+  // Capture photo to canvas and set it to file input
+  function takeSnapshot() {
+    canvas.style.display = "block";
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.style.border = "3px solid green";
+
+    canvas.toBlob((blob) => {
+      const fileInput = document.querySelector("input[type=file]");
+      const file = new File([blob], "face.png", { type: "image/png" });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      fileInput.files = dataTransfer.files;
+    });
+  }
+</script>
+{% endblock %}
