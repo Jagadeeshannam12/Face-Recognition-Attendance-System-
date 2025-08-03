@@ -96,6 +96,4 @@ attendance_project/
 
 This project is licensed under the MIT License.
 
----
 
-Made with ❤️ by [Your Name]
