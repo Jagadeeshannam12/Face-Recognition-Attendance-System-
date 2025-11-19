@@ -8,7 +8,8 @@ class RegisterForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
     registration_number = forms.CharField(max_length=20)
     section = forms.CharField(max_length=10)
-    face_image = forms.ImageField()
+    face_image = forms.ImageField(required=False)   # file upload (optional)
+    face_image_base64 = forms.CharField(required=False, widget=forms.HiddenInput())  # for webcam capture
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -21,6 +22,7 @@ class RegisterForm(forms.Form):
         if Student.objects.filter(registration_number=reg_no).exists():
             raise forms.ValidationError("This registration number already exists.")
         return reg_no
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)

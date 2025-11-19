@@ -55,8 +55,11 @@
           <canvas id="canvas" width="320" height="240" class="border rounded mb-2" style="display: none"></canvas>
         </div>
 
-        <!-- Face Image Field -->
+        <!-- File Upload Option -->
         {{ form.face_image|add_class:"form-control" }}
+
+        <!-- Hidden field for base64 image -->
+        <input type="hidden" name="face_image_base64" id="face_image_base64">
       </div>
 
       <button type="submit" class="btn btn-cta w-100">✅ Register</button>
@@ -68,6 +71,7 @@
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
   const context = canvas.getContext("2d");
+  const hiddenInput = document.getElementById("face_image_base64");
 
   // Start webcam
   navigator.mediaDevices.getUserMedia({ video: true })
@@ -79,19 +83,15 @@
       video.outerHTML = "<p class='text-danger'>⚠️ Webcam not available. Please upload image manually.</p>";
     });
 
-  // Capture photo to canvas and set it to file input
+  // Capture photo → preview + hidden field
   function takeSnapshot() {
     canvas.style.display = "block";
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.style.border = "3px solid green";
 
-    canvas.toBlob((blob) => {
-      const fileInput = document.querySelector("input[type=file]");
-      const file = new File([blob], "face.png", { type: "image/png" });
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.files = dataTransfer.files;
-    });
+    // Convert to Base64 and set hidden input
+    const dataUrl = canvas.toDataURL("image/png");
+    hiddenInput.value = dataUrl;
   }
 </script>
 {% endblock %}

@@ -1,3 +1,10 @@
+import os
+import cv2
+import csv
+import base64
+import uuid
+import numpy as np
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -6,21 +13,20 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.core.files.base import ContentFile
+from django.conf import settings
 
 from .forms import RegisterForm, LoginForm
 from .models import Student, Attendance
 
-import os, cv2, csv
-import numpy as np
-
+# face_recognition utils
 from face_recognition.detector import detect_faces
 from face_recognition.utils import save_image
 from face_recognition.recognizer import recognize_face
 from face_recognition.live_recognizer import capture_and_mark_attendance
-from django.core.files.base import ContentFile
 
 
-# ✅ Register view with webcam + file upload support
+# ✅ Register view (handles both file upload + webcam capture)
 def register_view(request):
     msg = ""
     if request.method == 'POST':
@@ -35,25 +41,35 @@ def register_view(request):
                     password=cd['password']
                 )
 
-                # Create Student
+                # Create Student (without image yet)
                 student = Student.objects.create(
                     user=user,
                     registration_number=cd['registration_number'],
                     section=cd['section'],
                 )
 
-                # Get face image from uploaded file
+                # --- Case 1: Uploaded file ---
                 uploaded_img = request.FILES.get('face_image')
-                if not uploaded_img:
+
+                # --- Case 2: Webcam capture (base64) ---
+                b64_data = cd.get('face_image_base64')
+
+                if uploaded_img:
+                    img_data = uploaded_img.read()
+                    np_arr = np.frombuffer(img_data, np.uint8)
+                    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+                elif b64_data:
+                    if "," in b64_data:
+                        b64_data = b64_data.split(",", 1)[1]
+                    img_bytes = base64.b64decode(b64_data)
+                    np_arr = np.frombuffer(img_bytes, np.uint8)
+                    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+                else:
                     msg = "❌ Please upload or capture a face image."
                     student.delete()
                     user.delete()
                     return render(request, 'register.html', {'form': form, 'msg': msg})
-
-                # Convert to OpenCV format
-                img_data = uploaded_img.read()
-                np_arr = np.frombuffer(img_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
                 # Detect faces
                 faces = detect_faces(img)
@@ -63,14 +79,23 @@ def register_view(request):
                     user.delete()
                     return render(request, 'register.html', {'form': form, 'msg': msg})
 
-                # Save cropped face image to media/faces/
+                # Save cropped face image to media/faces/ as registration.png
                 face = faces[0]
-                is_success, buffer = cv2.imencode(".jpg", face)
+                is_success, buffer = cv2.imencode(".png", face)
                 if is_success:
-                    content = ContentFile(buffer.tobytes())
-                    filename = f"{student.registration_number}.jpg"
+                    png_bytes = buffer.tobytes()
+                    content = ContentFile(png_bytes)
+                    # upload_to will rename to faces/<registration_number>.png
+                    filename = "registration.png"
                     student.face_image.save(filename, content)
                     student.save()
+
+                    # Also save a copy explicitly as media/faces/registration.png
+                    faces_dir = os.path.join(settings.MEDIA_ROOT, "faces")
+                    os.makedirs(faces_dir, exist_ok=True)
+                    registration_copy_path = os.path.join(faces_dir, "registration.png")
+                    with open(registration_copy_path, "wb") as f:
+                        f.write(png_bytes)
 
                 return redirect('login')
 
